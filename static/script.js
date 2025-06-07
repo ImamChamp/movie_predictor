@@ -107,7 +107,29 @@ document.addEventListener('DOMContentLoaded', function() {
           resultEmpty.style.display = 'block';
           resultEmpty.innerHTML = '<p>Произошла ошибка при получении предсказания. Пожалуйста, попробуйте еще раз.</p>';
         });
+        localStorage.removeItem("movieFormData");
       });
+
+      function saveFormDataToLocalStorage() {
+          const selectedGenres = getSelectedGenres(); // предполагаем, что эта функция уже есть
+          const budget = document.getElementById("budget").value;
+          const country = document.getElementById("country").value;
+          const language = document.getElementById("original-language").value;
+
+          const formData = {
+            genres: selectedGenres,
+            budget,
+            country,
+            language,
+          };
+
+          localStorage.setItem("movieFormData", JSON.stringify(formData));
+      }
+
+      document.getElementById("open-charts")?.addEventListener("click", (e) => {
+          saveFormDataToLocalStorage();
+        });
+
 
       function displayResults(movieData, prediction, statistic) {
         document.getElementById('result-title').textContent = movieData.title;

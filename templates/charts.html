@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Графики | КиноПредсказатель</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <h1><span style="color: var(--accent-red);">Кино</span>Графики</h1>
+      </div>
+      <p class="tagline">Визуализация данных о фильмах</p>
+      <a href="{{ url_for('index') }}" id="predict-form" style="color: var(--primary-gold); text-decoration: underline;">← Назад к предсказателю</a>
+    </header>
+
+    <main>
+      <div class="prediction-form">
+        <h2>График популярных бюджетов</h2>
+        <canvas id="budgetChart"></canvas>
+      </div>
+      <div class="prediction-result">
+        <h2>График средней оценки по жанрам</h2>
+        <canvas id="genreChart"></canvas>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // График бюджетов
+    const ctx1 = document.getElementById('budgetChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['<10M', '10-50M', '50-100M', '100-200M', '200M+'],
+            datasets: [{
+                label: 'Количество фильмов',
+                data: [5, 12, 9, 6, 2],
+                backgroundColor: '#FFD700',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Распределение по бюджетам' }
+            }
+        }
+    });
+
+    // График по жанрам
+    const ctx2 = document.getElementById('genreChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: ['Комедия', 'Драма', 'Боевик', 'Ужасы', 'Фантастика'],
+            datasets: [{
+                label: 'Средняя оценка',
+                data: [6.8, 7.2, 6.5, 5.9, 7.0],
+                backgroundColor: [
+                    '#F44336', '#2196F3', '#4CAF50', '#FFC107', '#9C27B0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: 'Средняя оценка по жанрам' }
+            }
+        }
+    });
+  </script>
+</body>
+</html>
