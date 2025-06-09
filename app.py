@@ -162,6 +162,9 @@ def chat():
 
         # Логика ответа бота
         message = user_message.lower()
+        if message == '/clear chat':
+            messages.clear()
+            return jsonify({"response": 'чат очищен'})
         messages.append({
             'username': 'username',
             'content': message
