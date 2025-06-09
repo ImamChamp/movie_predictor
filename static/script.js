@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const budgetCategory = document.getElementById('budget-category');
     const messageInput = document.getElementById('messageInput');
     const chatMessages = document.getElementById('chatMessages');
+    document.getElementById('fullscreenToggle')?.addEventListener('click', toggleFullscreen);
+    document.getElementById('closeChat')?.addEventListener('click', closeChat);
 
     console.log('messageInput exists:', !!messageInput);
     console.log('chatMessages exists:', !!chatMessages);
@@ -21,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     document.querySelector('.chat-toggle').addEventListener('click', toggleChat);
     document.querySelector('.send-button').addEventListener('click', sendMessage);
-
 
     // Функция для определения категории бюджета
     function getBudgetCategory(budget) {
@@ -290,6 +291,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function closeChat() {
+        const container = document.getElementById('chatContainer');
+        const toggle = document.querySelector('.chat-toggle');
+        chatOpen = false;
+        container.classList.remove('open');
+        toggle.classList.remove('active');
+    }
+
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
             sendMessage();
@@ -384,6 +393,36 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleChat();
         }
     });
+
+    let isFullscreen = false;
+
+    function toggleFullscreen() {
+        const chatWidget = document.querySelector('.chat-widget');
+        const fullscreenButton = document.getElementById('fullscreenToggle');
+        const fullscreenIcon = fullscreenButton.querySelector('svg path');
+
+        isFullscreen = !isFullscreen;
+
+        if (isFullscreen) {
+            chatWidget.classList.add('fullscreen');
+            fullscreenIcon.setAttribute('d', 'M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 0 2-2h3M3 16h3a2 2 0 0 0 2 2v3');
+
+            // Добавить обработчик для выхода по ESC
+            document.addEventListener('keydown', handleEscapeKey);
+
+            // Добавить обработчик для выхода по клику вне окна
+            setTimeout(() => {
+                document.addEventListener('click', handleOutsideClick);
+            }, 100);
+        } else {
+            chatWidget.classList.remove('fullscreen');
+            fullscreenIcon.setAttribute('d', 'M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3');
+
+            // Удалить обработчики
+            document.removeEventListener('keydown', handleEscapeKey);
+            document.removeEventListener('click', handleOutsideClick);
+        }
+    }
 });
 
 $(document).ready(function() {

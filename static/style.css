@@ -330,6 +330,46 @@ input[type="checkbox"]:checked::before {
     font-weight: 500;
 }
 
+.chat-widget.fullscreen {
+    position: fixed !important;
+    top: 80px !important;
+    left: 0px !important;
+    right: 0px !important;
+    bottom: 0px !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
+}
+
+.chat-widget.fullscreen .chat-container {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+}
+
+.chat-widget.fullscreen .chat-messages {
+    height: calc(100vh - 120px) !important;
+}
+
+.fullscreen-toggle {
+    background: none;
+    border: none;
+    color: black;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.9s;
+}
+
+.fullscreen-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 #genres-error {
     color: var(--accent-red);
     display: none;
