@@ -1,293 +1,267 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>КиноПредсказатель</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet"/>
-
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КиноПредсказатель</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
 <body>
-<div class="container">
-<header>
-<div class="logo">
-<h1><span style="color: var(--accent-red);">Кино</span>Предсказатель</h1>
-</div>
-<p class="tagline">Ваш личный оракул в мире кинопремьер</p>
-<a href="/charts" id="open-charts" style="color: var(--primary-gold); text-decoration: underline;">Посмотреть графики →</a>
-</header>
-<main>
-<div class="prediction-form">
-<h2>Узнайте судьбу будущего хита</h2>
-<form id="movie-form">
-<div class="form-group">
-<label for="title">Название фильма <span style="color: var(--accent-red);">*</span></label>
-<input id="title" name="title" placeholder="Введите название" required="" type="text"/>
-</div>
-<div class="form-group">
-<label>Жанры <span style="color: var(--accent-red);">*</span></label>
-<div class="genre-checkboxes">
-<div class="genre-checkbox-item">
-<input id="genre-action" name="genres" type="checkbox" value="action"/>
-<label for="genre-action">Боевик</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-comedy" name="genres" type="checkbox" value="comedy"/>
-<label for="genre-comedy">Комедия</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-drama" name="genres" type="checkbox" value="drama"/>
-<label for="genre-drama">Драма</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-horror" name="genres" type="checkbox" value="horror"/>
-<label for="genre-horror">Ужасы</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-science_fiction" name="genres" type="checkbox" value="science fiction"/>
-<label for="genre-science_fiction">Фантастика</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-thriller" name="genres" type="checkbox" value="thriller"/>
-<label for="genre-thriller">Триллер</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-romance" name="genres" type="checkbox" value="romance"/>
-<label for="genre-romance">Мелодрама</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-animation" name="genres" type="checkbox" value="animation"/>
-<label for="genre-animation">Мультфильм</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-adventure" name="genres" type="checkbox" value="adventure"/>
-<label for="genre-adventure">Приключения</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-fantasy" name="genres" type="checkbox" value="fantasy"/>
-<label for="genre-fantasy">Фэнтези</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-family" name="genres" type="checkbox" value="family"/>
-<label for="genre-family">Семейный</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-crime" name="genres" type="checkbox" value="crime"/>
-<label for="genre-crime">Преступники</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-mystery" name="genres" type="checkbox" value="mystery"/>
-<label for="genre-mystery">Мистика</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-history" name="genres" type="checkbox" value="history"/>
-<label for="genre-history">Исторический</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-war" name="genres" type="checkbox" value="war"/>
-<label for="genre-war">Военный</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-documentary" name="genres" type="checkbox" value="documentary"/>
-<label for="genre-documentary">Документальный</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-music" name="genres" type="checkbox" value="music"/>
-<label for="genre-music">Музыкальный</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-western" name="genres" type="checkbox" value="western"/>
-<label for="genre-western">Вестерн</label>
-</div>
-<div class="genre-checkbox-item">
-<input id="genre-tv_movie" name="genres" type="checkbox" value="Tv Movie"/>
-<label for="genre-tv_movie">ТВ-Фильм</label>
-</div>
-</div>
-<div id="genres-error" style="color: var(--accent-red); display: none;">Выберите хотя бы один жанр</div>
-</div>
-<div class="form-group">
-<label for="original-language">Оригинальный язык <span style="color: var(--accent-red);">*</span></label>
-<select id="original-language" name="original_language" required="">
-<option value="">Выберите язык</option>
-<option value=" English">Английский</option>
-<option value=" Spanish, Castilian">Испанский</option>
-<option value=" Norwegian">Норвежский</option>
-<option value=" Japanese">Японский</option>
-<option value=" Korean">Корейский</option>
-<option value=" Russian">Русский</option>
-<option value=" Cantonese">Кантонский</option>
-<option value=" Ukrainian">Украинский</option>
-<option value=" Italian">Итальянский</option>
-<option value=" German">Немецкий</option>
-<option value=" French">Французский</option>
-<option value=" Finnish">Финский</option>
-<option value=" Catalan, Valencian">Каталанский</option>
-<option value=" Icelandic">Исландский</option>
-<option value=" Indonesian">Индонезийский</option>
-<option value=" Dutch, Flemish">Голландский</option>
-<option value=" Portuguese">Португальский</option>
-<option value=" Telugu">Телугу</option>
-<option value=" Polish">Польский</option>
-<option value=" Danish">Датский</option>
-<option value=" Turkish">Турецкий</option>
-<option value=" Chinese">Китайский</option>
-<option value=" Thai">Тайский</option>
-<option value=" Romanian">Румынский</option>
-<option value=" Tagalog">Тагальский</option>
-<option value=" Macedonian">Македонский</option>
-<option value=" Swedish">Шведский</option>
-<option value=" Tamil">Тамильский</option>
-<option value=" Vietnamese">Вьетнамский</option>
-<option value=" Hindi">Хинди</option>
-<option value=" Arabic">Арабский</option>
-<option value=" Serbian">Сербский</option>
-<option value=" Galician">Галисийский</option>
-<option value=" Greek">Греческий</option>
-<option value=" Hungarian">Венгерский</option>
-<option value=" Malayalam">Малаялам</option>
-<option value=" Oriya">Ория</option>
-<option value=" Persian">Персидский</option>
-<option value=" Bengali">Бенгальский</option>
-<option value=" Bokmål, Norwegian, Norwegian Bokmål">Норвежский (букмол)</option>
-<option value=" Latvian">Латышский</option>
-<option value=" Basque">Баскский</option>
-<option value=" Malay">Малайский</option>
-<option value=" Central Khmer">Кхмерский</option>
-<option value=" Irish">Ирландский</option>
-<option value=" Czech">Чешский</option>
-<option value=" Gujarati">Гуджарати</option>
-<option value=" Kannada">Каннада</option>
-<option value=" Serbo-Croatian">Сербохорватский</option>
-<option value=" Latin">Латынь</option>
-<option value=" Dzongkha">Дзонг-кэ</option>
-<option value=" No Language">Без языка</option>
-<option value=" Slovak">Словацкий</option>
-</select>
-</div>
-<div class="form-group">
-<label for="budget-range">Бюджет фильма:</label>
-<div class="d-flex align-items-center">
-<input class="form-control-range mr-3" id="budget-range" max="300000000" min="0" step="10000" style="flex: 1;" type="range" value="30000000"/>
-<div class="input-group" style="width: 200px;">
-<div class="input-group-prepend">
-<span class="input-group-text">$</span>
-</div>
-<input class="form-control" id="budget-input" max="300000000" min="1000000" type="number" value="30000000"/>
-</div>
-</div>
-<div class="d-flex justify-content-between mt-1">
-</div>
-<p class="mt-2" id="budget-category">Категория: Средний бюджет</p>
-</div>
-<div class="form-group">
-<label for="country">Страна производства <span style="color: var(--accent-red);">*</span></label>
-<select id="country" name="country" required="">
-<option value="">Выберите страну</option>
-<option data-image="https://flagcdn.com/w40/au.png" value="AU">Австралия</option>
-<option data-image="https://flagcdn.com/w40/us.png" value="US">США</option>
-<option data-image="https://flagcdn.com/w40/mx.png" value="MX">Мексика</option>
-<option data-image="https://flagcdn.com/w40/gb.png" value="GB">Великобритания</option>
-<option data-image="https://flagcdn.com/w40/cl.png" value="CL">Чили</option>
-<option data-image="https://flagcdn.com/w40/no.png" value="NO">Норвегия</option>
-<option data-image="https://flagcdn.com/w40/es.png" value="ES">Испания</option>
-<option data-image="https://flagcdn.com/w40/ar.png" value="AR">Аргентина</option>
-<option data-image="https://flagcdn.com/w40/kr.png" value="KR">Южная Корея</option>
-<option data-image="https://flagcdn.com/w40/hk.png" value="HK">Гонконг</option>
-<option data-image="https://flagcdn.com/w40/ua.png" value="UA">Украина</option>
-<option data-image="https://flagcdn.com/w40/it.png" value="IT">Италия</option>
-<option data-image="https://flagcdn.com/w40/ru.png" value="RU">Россия</option>
-<option data-image="https://flagcdn.com/w40/co.png" value="CO">Колумбия</option>
-<option data-image="https://flagcdn.com/w40/de.png" value="DE">Германия</option>
-<option data-image="https://flagcdn.com/w40/jp.png" value="JP">Япония</option>
-<option data-image="https://flagcdn.com/w40/fr.png" value="FR">Франция</option>
-<option data-image="https://flagcdn.com/w40/fi.png" value="FI">Финляндия</option>
-<option data-image="https://flagcdn.com/w40/is.png" value="IS">Исландия</option>
-<option data-image="https://flagcdn.com/w40/id.png" value="ID">Индонезия</option>
-<option data-image="https://flagcdn.com/w40/br.png" value="BR">Бразилия</option>
-<option data-image="https://flagcdn.com/w40/be.png" value="BE">Бельгия</option>
-<option data-image="https://flagcdn.com/w40/dk.png" value="DK">Дания</option>
-<option data-image="https://flagcdn.com/w40/tr.png" value="TR">Турция</option>
-<option data-image="https://flagcdn.com/w40/th.png" value="TH">Таиланд</option>
-<option data-image="https://flagcdn.com/w40/pl.png" value="PL">Польша</option>
-<option data-image="https://flagcdn.com/w40/gt.png" value="GT">Гватемала</option>
-<option data-image="https://flagcdn.com/w40/cn.png" value="CN">Китай</option>
-<option data-image="https://flagcdn.com/w40/cz.png" value="CZ">Чехия</option>
-<option data-image="https://flagcdn.com/w40/ph.png" value="PH">Филиппины</option>
-<option data-image="https://flagcdn.com/w40/za.png" value="ZA">Южная Африка</option>
-<option data-image="https://flagcdn.com/w40/ca.png" value="CA">Канада</option>
-<option data-image="https://flagcdn.com/w40/nl.png" value="NL">Нидерланды</option>
-<option data-image="https://flagcdn.com/w40/tw.png" value="TW">Тайвань</option>
-<option data-image="https://flagcdn.com/w40/pr.png" value="PR">Пуэрто-Рико</option>
-<option data-image="https://flagcdn.com/w40/in.png" value="IN">Индия</option>
-<option data-image="https://flagcdn.com/w40/ie.png" value="IE">Ирландия</option>
-<option data-image="https://flagcdn.com/w40/sg.png" value="SG">Сингапур</option>
-<option data-image="https://flagcdn.com/w40/pe.png" value="PE">Перу</option>
-<option data-image="https://flagcdn.com/w40/ch.png" value="CH">Швейцария</option>
-<option data-image="https://flagcdn.com/w40/se.png" value="SE">Швеция</option>
-<option data-image="https://flagcdn.com/w40/il.png" value="IL">Израиль</option>
-<option data-image="https://flagcdn.com/w40/do.png" value="DO">Доминикана</option>
-<option data-image="https://flagcdn.com/w40/vn.png" value="VN">Вьетнам</option>
-<option data-image="https://flagcdn.com/w40/gr.png" value="GR">Греция</option>
-<option value="SU">СССР</option>
-<option data-image="https://flagcdn.com/w40/hu.png" value="HU">Венгрия</option>
-<option data-image="https://flagcdn.com/w40/bo.png" value="BO">Боливия</option>
-<option data-image="https://flagcdn.com/w40/sk.png" value="SK">Словакия</option>
-<option data-image="https://flagcdn.com/w40/uy.png" value="UY">Уругвай</option>
-<option data-image="https://flagcdn.com/w40/by.png" value="BY">Беларусь</option>
-<option data-image="https://flagcdn.com/w40/at.png" value="AT">Австрия</option>
-<option data-image="https://flagcdn.com/w40/py.png" value="PY">Парагвай</option>
-<option data-image="https://flagcdn.com/w40/my.png" value="MY">Малайзия</option>
-<option data-image="https://flagcdn.com/w40/mu.png" value="MU">Маврикий</option>
-<option data-image="https://flagcdn.com/w40/lv.png" value="LV">Латвия</option>
-<option value="XC">Европа (прочее)</option>
-<option data-image="https://flagcdn.com/w40/kh.png" value="KH">Камбоджа</option>
-<option data-image="https://flagcdn.com/w40/ir.png" value="IR">Иран</option>
-</select>
-</div>
-<button class="predict-button" type="submit">Запустить предсказание <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>
-</form>
-</div>
-<div class="prediction-result" id="result-container">
-<h2>Результат <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></h2>
-<div class="result-empty" id="result-empty">
-<p>Заполните форму и нажмите кнопку, чтобы узнать предсказанную оценку фильма.</p>
-</div>
-<div class="result-content" id="result-content" style="display: none;">
-<div class="movie-summary">
-<h3 id="result-title">Название фильма</h3>
-<p>Жанры: <span id="result-genres"></span></p>
-<p>Страна производства: <span id="result-country"></span></p>
-</div>
-<div class="rating-container">
-<div class="rating">
-<span id="prediction-value">0.0</span>
-</div>
-<p class="rating-label">Предсказанный рейтинг</p>
-<p class="better-than"> Это лучше чем у <span id="percentage"></span>% фильмов! </p>
-</div>
-<div class="rating-details">
-<div class="rating-bar-container">
-<div class="rating-bar" id="rating-bar"></div>
-</div>
-</div>
-</div>
-<div class="loading" id="loading" style="display: none;">
-<div class="spinner"></div>
-<p>Магия кино в процессе... Ожидайте!</p>
-</div>
-</div>
-</main>
-<footer>
-<p>© 2025 <span style="color: var(--accent-red);">Кино</span>Предсказатель | Дипломный проект с любовью к кино</p>
-</footer>
-</div>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>КиноПредсказатель</h1>
+                <p class="tagline">Ваш личный оракул в мире кинопремьер</p>
+            </div>
+            <a href="/charts" id="open-charts">Посмотреть графики →</a>
+        </header>
 
+        <main>
+            <section class="prediction-form">
+                <h2>Узнайте судьбу будущего хита</h2>
+                <form id="movie-form">
+                    <div class="form-group">
+                        <label for="title">Название фильма *</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
 
-<script src="script.js"></script></body>
+                    <div class="form-group">
+                        <label>Жанры *</label>
+                        <div class="genre-checkboxes">
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Action"><label>Боевик</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Comedy"><label>Комедия</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Drama"><label>Драма</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Horror"><label>Ужасы</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Science Fiction"><label>Фантастика</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Thriller"><label>Триллер</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Romance"><label>Мелодрама</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Animation"><label>Мультфильм</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Adventure"><label>Приключения</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Fantasy"><label>Фэнтези</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Family"><label>Семейный</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Crime"><label>Преступники</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Mystery"><label>Мистика</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="History"><label>Исторический</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="War"><label>Военный</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Documentary"><label>Документальный</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Music"><label>Музыкальный</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="Western"><label>Вестерн</label></div>
+                            <div class="genre-checkbox-item"><input type="checkbox" name="genres" value="TV Movie"><label>ТВ-Фильм</label></div>
+                        </div>
+                        <p id="genres-error">Выберите хотя бы один жанр</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="original_language">Оригинальный язык *</label>
+                        <select id="original_language" name="original_language" required>
+                            <option value="">Выберите язык</option>
+                            <option value=" English">Английский</option>
+                            <option value=" Spanish, Castilian">Испанский</option>
+                            <option value=" Norwegian">Норвежский</option>
+                            <option value=" Japanese">Японский</option>
+                            <option value=" Korean">Корейский</option>
+                            <option value=" Russian">Русский</option>
+                            <option value=" Cantonese">Кантонский</option>
+                            <option value=" Ukrainian">Украинский</option>
+                            <option value=" Italian">Итальянский</option>
+                            <option value=" German">Немецкий</option>
+                            <option value=" French">Французский</option>
+                            <option value=" Finnish">Финский</option>
+                            <option value=" Catalan, Valencian">Каталанский</option>
+                            <option value=" Icelandic">Исландский</option>
+                            <option value=" Indonesian">Индонезийский</option>
+                            <option value=" Dutch, Flemish">Голландский</option>
+                            <option value=" Portuguese">Португальский</option>
+                            <option value=" Telugu">Телугу</option>
+                            <option value=" Polish">Польский</option>
+                            <option value=" Danish">Датский</option>
+                            <option value=" Turkish">Турецкий</option>
+                            <option value=" Chinese">Китайский</option>
+                            <option value=" Thai">Тайский</option>
+                            <option value=" Romanian">Румынский</option>
+                            <option value=" Tagalog">Тагальский</option>
+                            <option value=" Macedonian">Македонский</option>
+                            <option value=" Swedish">Шведский</option>
+                            <option value=" Tamil">Тамильский</option>
+                            <option value=" Vietnamese">Вьетнамский</option>
+                            <option value=" Hindi">Хинди</option>
+                            <option value=" Arabic">Арабский</option>
+                            <option value=" Serbian">Сербский</option>
+                            <option value=" Galician">Галисийский</option>
+                            <option value=" Greek">Греческий</option>
+                            <option value=" Hungarian">Венгерский</option>
+                            <option value=" Malayalam">Малаялам</option>
+                            <option value=" Oriya">Ория</option>
+                            <option value=" Persian">Персидский</option>
+                            <option value=" Bengali">Бенгальский</option>
+                            <option value=" Bokmål, Norwegian, Norwegian Bokmål">Норвежский (букмол)</option>
+                            <option value=" Latvian">Латышский</option>
+                            <option value=" Basque">Баскский</option>
+                            <option value=" Malay">Малайский</option>
+                            <option value=" Central Khmer">Кхмерский</option>
+                            <option value=" Irish">Ирландский</option>
+                            <option value=" Czech">Чешский</option>
+                            <option value=" Gujarati">Гуджарати</option>
+                            <option value=" Kannada">Каннада</option>
+                            <option value=" Serbo-Croatian">Сербохорватский</option>
+                            <option value=" Latin">Латынь</option>
+                            <option value=" Dzongkha">Дзонг-кэ</option>
+                            <option value=" No Language">Без языка</option>
+                            <option value=" Slovak">Словацкий</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="budget">Бюджет фильма:</label>
+                        <input type="range" id="budget-range" name="budget" min="1000000" max="300000000" step="1000000" value="10000000">
+                        <input type="number" id="budget-input" name="budget" value="10000000">
+                        <p id="budget-category">Категория: Средний бюджет</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Страна производства *</label>
+                        <select id="country" name="country" required>
+                            <option value="" disabled selected>Выберите страну</option>
+                            <option value="AU" data-image="https://flagcdn.com/16x12/au.png">Австралия</option>
+                            <option value="US" data-image="https://flagcdn.com/16x12/us.png">США</option>
+                            <option value="MX" data-image="https://flagcdn.com/16x12/mx.png">Мексика</option>
+                            <option value="GB" data-image="https://flagcdn.com/16x12/gb.png">Великобритания</option>
+                            <option value="CL" data-image="https://flagcdn.com/16x12/cl.png">Чили</option>
+                            <option value="NO" data-image="https://flagcdn.com/16x12/no.png">Норвегия</option>
+                            <option value="ES" data-image="https://flagcdn.com/16x12/es.png">Испания</option>
+                            <option value="AR" data-image="https://flagcdn.com/16x12/ar.png">Аргентина</option>
+                            <option value="KR" data-image="https://flagcdn.com/16x12/kr.png">Южная Корея</option>
+                            <option value="HK" data-image="https://flagcdn.com/16x12/hk.png">Гонконг</option>
+                            <option value="UA" data-image="https://flagcdn.com/16x12/ua.png">Украина</option>
+                            <option value="IT" data-image="https://flagcdn.com/16x12/it.png">Италия</option>
+                            <option value="RU" data-image="https://flagcdn.com/16x12/ru.png">Россия</option>
+                            <option value="CO" data-image="https://flagcdn.com/16x12/co.png">Колумбия</option>
+                            <option value="DE" data-image="https://flagcdn.com/16x12/de.png">Германия</option>
+                            <option value="JP" data-image="https://flagcdn.com/16x12/jp.png">Япония</option>
+                            <option value="FR" data-image="https://flagcdn.com/16x12/fr.png">Франция</option>
+                            <option value="FI" data-image="https://flagcdn.com/16x12/fi.png">Финляндия</option>
+                            <option value="IS" data-image="https://flagcdn.com/16x12/is.png">Исландия</option>
+                            <option value="ID" data-image="https://flagcdn.com/16x12/id.png">Индонезия</option>
+                            <option value="BR" data-image="https://flagcdn.com/16x12/br.png">Бразилия</option>
+                            <option value="BE" data-image="https://flagcdn.com/16x12/be.png">Бельгия</option>
+                            <option value="DK" data-image="https://flagcdn.com/16x12/dk.png">Дания</option>
+                            <option value="TR" data-image="https://flagcdn.com/16x12/tr.png">Турция</option>
+                            <option value="TH" data-image="https://flagcdn.com/16x12/th.png">Таиланд</option>
+                            <option value="PL" data-image="https://flagcdn.com/16x12/pl.png">Польша</option>
+                            <option value="GT" data-image="https://flagcdn.com/16x12/gt.png">Гватемала</option>
+                            <option value="CN" data-image="https://flagcdn.com/16x12/cn.png">Китай</option>
+                            <option value="CZ" data-image="https://flagcdn.com/16x12/cz.png">Чехия</option>
+                            <option value="PH" data-image="https://flagcdn.com/16x12/ph.png">Филиппины</option>
+                            <option value="ZA" data-image="https://flagcdn.com/16x12/za.png">Южная Африка</option>
+                            <option value="CA" data-image="https://flagcdn.com/16x12/ca.png">Канада</option>
+                            <option value="NL" data-image="https://flagcdn.com/16x12/nl.png">Нидерланды</option>
+                            <option value="TW" data-image="https://flagcdn.com/16x12/tw.png">Тайвань</option>
+                            <option value="PR" data-image="https://flagcdn.com/16x12/pr.png">Пуэрто-Рико</option>
+                            <option value="IN" data-image="https://flagcdn.com/16x12/in.png">Индия</option>
+                            <option value="IE" data-image="https://flagcdn.com/16x12/ie.png">Ирландия</option>
+                            <option value="SG" data-image="https://flagcdn.com/16x12/sg.png">Сингапур</option>
+                            <option value="PE" data-image="https://flagcdn.com/16x12/pe.png">Перу</option>
+                            <option value="CH" data-image="https://flagcdn.com/16x12/ch.png">Швейцария</option>
+                            <option value="SE" data-image="https://flagcdn.com/16x12/se.png">Швеция</option>
+                            <option value="IL" data-image="https://flagcdn.com/16x12/il.png">Израиль</option>
+                            <option value="DO" data-image="https://flagcdn.com/16x12/do.png">Доминикана</option>
+                            <option value="VN" data-image="https://flagcdn.com/16x12/vn.png">Вьетнам</option>
+                            <option value="GR" data-image="https://flagcdn.com/16x12/gr.png">Греция</option>
+                            <option value="SU" data-image="https://flagcdn.com/16x12/su.png">СССР</option>
+                            <option value="HU" data-image="https://flagcdn.com/16x12/hu.png">Венгрия</option>
+                            <option value="BO" data-image="https://flagcdn.com/16x12/bo.png">Боливия</option>
+                            <option value="SK" data-image="https://flagcdn.com/16x12/sk.png">Словакия</option>
+                            <option value="UY" data-image="https://flagcdn.com/16x12/uy.png">Уругвай</option>
+                            <option value="BY" data-image="https://flagcdn.com/16x12/by.png">Беларусь</option>
+                            <option value="AT" data-image="https://flagcdn.com/16x12/at.png">Австрия</option>
+                            <option value="PY" data-image="https://flagcdn.com/16x12/py.png">Парагвай</option>
+                            <option value="MY" data-image="https://flagcdn.com/16x12/my.png">Малайзия</option>
+                            <option value="MU" data-image="https://flagcdn.com/16x12/mu.png">Маврикий</option>
+                            <option value="LV" data-image="https://flagcdn.com/16x12/lv.png">Латвия</option>
+                            <option value="XC" data-image="https://flagcdn.com/16x12/eu.png">Европа (прочее)</option>
+                            <option value="KH" data-image="https://flagcdn.com/16x12/kh.png">Камбоджа</option>
+                            <option value="IR" data-image="https://flagcdn.com/16x12/ir.png">Иран</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="predict-button">Запустить предсказание</button>
+                </form>
+            </section>
+
+            <section class="prediction-result">
+                <h2>Результат</h2>
+                <div id="result-empty" class="result-empty">
+                    <p>Заполните форму и нажмите кнопку, чтобы узнать предсказанную оценку фильма.</p>
+                </div>
+                <div id="result-content" style="display: none;">
+                    <div class="movie-summary">
+                        <h3 id="result-title">Название фильма</h3>
+                        <p>Жанры: <span id="result-genres" class="genre-tags"></span></p>
+                        <p>Страна производства: <span id="result-country"></span></p>
+                    </div>
+                    <div class="rating-container">
+                        <div class="rating">
+                            <span id="prediction-value">0.0</span>
+                        </div>
+                        <p class="rating-label">Предсказанный рейтинг</p>
+                        <p class="better-than"> Это лучше чем у <span id="percentage"></span>% фильмов! </p>
+                        </div>
+                        <div class="rating-details">
+                        <div class="rating-bar-container">
+                        <div class="rating-bar" id="rating-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Магия кино в процессе... Ожидайте!</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 КиноПредсказатель | Дипломный проект с любовью к кино</p>
+        </footer>
+    </div>
+
+    <!-- Виджет чата -->
+    <div class="chat-widget">
+        <button class="chat-toggle">
+            <svg class="chat-icon" viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+            </svg>
+        </button>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <div class="chat-avatar">🎬</div>
+                <div class="chat-info">
+                    <h3>КиноБот</h3>
+                    <p>Ваш помощник по фильмам</p>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    Привет! 👋 Я КиноБот, ваш помощник по фильмам! Могу помочь с выбором жанров, бюджета или просто порекомендовать что-то интересное. О чём хотите поговорить?
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Напишите сообщение...">
+                <button class="send-button" id="sendButton">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="static/script.js" defer></script>
+</body>
 </html>

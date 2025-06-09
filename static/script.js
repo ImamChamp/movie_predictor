@@ -1,61 +1,75 @@
 document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('movie-form');
-      const resultEmpty = document.getElementById('result-empty');
-      const resultContent = document.getElementById('result-content');
-      const loading = document.getElementById('loading');
-      const genresError = document.getElementById('genres-error');
-      const budgetRange = document.getElementById('budget-range');
-      const budgetInput = document.getElementById('budget-input');
-      const budgetCategory = document.getElementById('budget-category');
+    const form = document.getElementById('movie-form');
+    const resultEmpty = document.getElementById('result-empty');
+    const resultContent = document.getElementById('result-content');
+    const loading = document.getElementById('loading');
+    const genresError = document.getElementById('genres-error');
+    const budgetRange = document.getElementById('budget-range');
+    const budgetInput = document.getElementById('budget-input');
+    const budgetCategory = document.getElementById('budget-category');
+    const messageInput = document.getElementById('messageInput');
+    const chatMessages = document.getElementById('chatMessages');
 
-      // Функция для определения категории бюджета
-      function getBudgetCategory(budget) {
-          if (budget < 10000000) return "Малобюджетный";
-          if (budget < 70000000) return "Средний";
-          return "Блокбастер";
-      }
+    console.log('messageInput exists:', !!messageInput);
+    console.log('chatMessages exists:', !!chatMessages);
 
-      // Функция для форматирования бюджета
-      function formatBudget(budget) {
-          return parseInt(budget).toLocaleString();
-      }
-
-      // Обновление при изменении ползунка
-      budgetRange.addEventListener('input', function() {
-          const budget = parseInt(this.value);
-          budgetInput.value = budget;
-          budgetCategory.textContent = `Категория: ${getBudgetCategory(budget)} бюджет`;
-      });
-
-      // Обновление при изменении ввода
-      budgetInput.addEventListener('input', function() {
-          let budget = parseInt(this.value) || 1000000;
-
-          // Ограничение значений
-          if (budget < 1000000) budget = 1000000;
-          if (budget > 300000000) budget = 300000000;
-
-          this.value = budget;
-          budgetRange.value = budget;
-          budgetCategory.textContent = `Категория: ${getBudgetCategory(budget)} бюджет`;
-      });
-
-      // Обработка потери фокуса полем ввода для форматирования
-      budgetInput.addEventListener('blur', function() {
-          this.value = parseInt(this.value) || 1000000;
-      });
+    if (!messageInput) {
+        console.error('Element #messageInput not found in DOM');
+    }
+    if (!chatMessages) {
+        console.error('Element #chatMessages not found in DOM');
+    }
+    document.querySelector('.chat-toggle').addEventListener('click', toggleChat);
+    document.querySelector('.send-button').addEventListener('click', sendMessage);
 
 
-      form.addEventListener('submit', function(e) {
+    // Функция для определения категории бюджета
+    function getBudgetCategory(budget) {
+        if (budget < 10000000) return "Малобюджетный";
+        if (budget < 70000000) return "Средний";
+        return "Блокбастер";
+    }
+
+    // Функция для форматирования бюджета
+    function formatBudget(budget) {
+        return parseInt(budget).toLocaleString();
+    }
+
+    // Обновление при изменении ползунка
+    budgetRange.addEventListener('input', function() {
+        const budget = parseInt(this.value);
+        budgetInput.value = budget;
+        budgetCategory.textContent = `Категория: ${getBudgetCategory(budget)} бюджет`;
+    });
+
+    // Обновление при изменении ввода
+    budgetInput.addEventListener('input', function() {
+        let budget = parseInt(this.value) || 1000000;
+
+        // Ограничение значений
+        if (budget < 1000000) budget = 1000000;
+        if (budget > 300000000) budget = 300000000;
+
+        this.value = budget;
+        budgetRange.value = budget;
+        budgetCategory.textContent = `Категория: ${getBudgetCategory(budget)} бюджет`;
+    });
+
+    // Обработка потери фокуса полем ввода для форматирования
+    budgetInput.addEventListener('blur', function() {
+        this.value = parseInt(this.value) || 1000000;
+    });
+
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
 
         // Проверяем, выбран ли хотя бы один жанр
         const selectedGenres = document.querySelectorAll('input[name="genres"]:checked');
         if (selectedGenres.length === 0) {
-          genresError.style.display = 'block';
-          return;
+            genresError.style.display = 'block';
+            return;
         } else {
-          genresError.style.display = 'none';
+            genresError.style.display = 'none';
         }
 
         resultEmpty.style.display = 'none';
@@ -68,156 +82,155 @@ document.addEventListener('DOMContentLoaded', function() {
         // Собираем выбранные жанры в массив
         const genres = [];
         selectedGenres.forEach(checkbox => {
-          genres.push(checkbox.value);
+            genres.push(checkbox.value);
         });
         const budget = parseInt(budgetInput.value);
 
         const movieData = {
-          title: formData.get('title'),
-          genres: genres, // Теперь передаем массив жанров
-          original_language: formData.get('original_language'),
-          budget: budget,
-          country: formData.get('country')
+            title: formData.get('title'),
+            genres: genres, // Теперь передаем массив жанров
+            original_language: formData.get('original_language'),
+            budget: budget,
+            country: formData.get('country')
         };
 
         // Отправка данных на сервер Flask
         fetch('/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(movieData)
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(movieData)
         })
         .then(response => {
-          if (!response.ok) {
-            throw new Error('Ошибка сервера');
-          }
-          return response.json();
+            if (!response.ok) {
+                throw new Error('Ошибка сервера');
+            }
+            return response.json();
         })
         .then(data => {
-          loading.style.display = 'none';
-          displayResults(data.movie, data.prediction, data.statistic);
-          resultContent.style.display = 'block';
+            loading.style.display = 'none';
+            displayResults(data.movie, data.prediction, data.statistic);
+            resultContent.style.display = 'block';
         })
         .catch(error => {
-          console.error('Ошибка:', error);
-          loading.style.display = 'none';
+            console.error('Ошибка:', error);
+            loading.style.display = 'none';
 
-          // В случае ошибки показываем сообщение
-          resultEmpty.style.display = 'block';
-          resultEmpty.innerHTML = '<p>Произошла ошибка при получении предсказания. Пожалуйста, попробуйте еще раз.</p>';
+            // В случае ошибки показываем сообщение
+            resultEmpty.style.display = 'block';
+            resultEmpty.innerHTML = '<p>Произошла ошибка при получении предсказания. Пожалуйста, попробуйте еще раз.</p>';
         });
         localStorage.removeItem("movieFormData");
-      });
+    });
 
-      function saveFormDataToLocalStorage() {
-          const selectedGenres = getSelectedGenres(); // предполагаем, что эта функция уже есть
-          const budget = document.getElementById("budget").value;
-          const country = document.getElementById("country").value;
-          const language = document.getElementById("original-language").value;
+    function saveFormDataToLocalStorage() {
+        const selectedGenres = getSelectedGenres(); // предполагаем, что эта функция уже есть
+        const budget = document.getElementById("budget-input").value; // Updated to match input ID
+        const country = document.getElementById("country").value;
+        const language = document.getElementById("original_language").value; // Updated to match select ID
 
-          const formData = {
+        const formData = {
             genres: selectedGenres,
             budget,
             country,
             language,
-          };
+        };
 
-          localStorage.setItem("movieFormData", JSON.stringify(formData));
-      }
+        localStorage.setItem("movieFormData", JSON.stringify(formData));
+    }
 
-      document.getElementById("open-charts")?.addEventListener("click", (e) => {
-          saveFormDataToLocalStorage();
-        });
+    document.getElementById("open-charts")?.addEventListener("click", (e) => {
+        saveFormDataToLocalStorage();
+    });
 
-
-      function displayResults(movieData, prediction, statistic) {
+    function displayResults(movieData, prediction, statistic) {
         document.getElementById('result-title').textContent = movieData.title;
 
         document.getElementById('percentage').textContent = statistic;
 
         const genreMapping = {
-          'Action': 'Боевик',
-          'Comedy': 'Комедия',
-          'Drama': 'Драма',
-          'Horror': 'Ужасы',
-          'Science Fiction': 'Фантастика',
-          'Thriller': 'Триллер',
-          'Romance': 'Мелодрама',
-          'Animation': 'Мультфильм',
-          'Adventure': 'Приключения',
-          'Fantasy': 'Фэнтези',
-          'Family': 'Семейный',
-          'Crime': 'Преступники',
-          'Mystery': 'Мистика',
-          'History': 'Исторический',
-          'War': 'Военный',
-          'Documentary': 'Документальный',
-          'Music': 'Музыкальный',
-          'Western': 'Вестерн',
-          'TV Movie': 'ТВ-Фильм'
+            'Action': 'Боевик',
+            'Comedy': 'Комедия',
+            'Drama': 'Драма',
+            'Horror': 'Ужасы',
+            'Science Fiction': 'Фантастика',
+            'Thriller': 'Триллер',
+            'Romance': 'Мелодрама',
+            'Animation': 'Мультфильм',
+            'Adventure': 'Приключения',
+            'Fantasy': 'Фэнтези',
+            'Family': 'Семейный',
+            'Crime': 'Преступники',
+            'Mystery': 'Мистика',
+            'History': 'Исторический',
+            'War': 'Военный',
+            'Documentary': 'Документальный',
+            'Music': 'Музыкальный',
+            'Western': 'Вестерн',
+            'TV Movie': 'ТВ-Фильм'
         };
 
         const countryMapping = {
-          'AU': 'Австралия',
-          'US': 'США',
-          'MX': 'Мексика',
-          'GB': 'Великобритания',
-          'CL': 'Чили',
-          'NO': 'Норвегия',
-          'ES': 'Испания',
-          'AR': 'Аргентина',
-          'KR': 'Южная Корея',
-          'HK': 'Гонконг',
-          'UA': 'Украина',
-          'IT': 'Италия',
-          'RU': 'Россия',
-          'CO': 'Колумбия',
-          'DE': 'Германия',
-          'JP': 'Япония',
-          'FR': 'Франция',
-          'FI': 'Финляндия',
-          'IS': 'Исландия',
-          'ID': 'Индонезия',
-          'BR': 'Бразилия',
-          'BE': 'Бельгия',
-          'DK': 'Дания',
-          'TR': 'Турция',
-          'TH': 'Таиланд',
-          'PL': 'Польша',
-          'GT': 'Гватемала',
-          'CN': 'Китай',
-          'CZ': 'Чехия',
-          'PH': 'Филиппины',
-          'ZA': 'Южная Африка',
-          'CA': 'Канада',
-          'NL': 'Нидерланды',
-          'TW': 'Тайвань',
-          'PR': 'Пуэрто-Рико',
-          'IN': 'Индия',
-          'IE': 'Ирландия',
-          'SG': 'Сингапур',
-          'PE': 'Перу',
-          'CH': 'Швейцария',
-          'SE': 'Швеция',
-          'IL': 'Израиль',
-          'DO': 'Доминикана',
-          'VN': 'Вьетнам',
-          'GR': 'Греция',
-          'SU': 'СССР',
-          'HU': 'Венгрия',
-          'BO': 'Боливия',
-          'SK': 'Словакия',
-          'UY': 'Уругвай',
-          'BY': 'Беларусь',
-          'AT': 'Австрия',
-          'PY': 'Парагвай',
-          'MY': 'Малайзия',
-          'MU': 'Маврикий',
-          'LV': 'Латвия',
-          'XC': 'Европа (прочее)',
-          'KH': 'Камбоджа',
-          'IR': 'Иран'
+            'AU': 'Австралия',
+            'US': 'США',
+            'MX': 'Мексика',
+            'GB': 'Великобритания',
+            'CL': 'Чили',
+            'NO': 'Норвегия',
+            'ES': 'Испания',
+            'AR': 'Аргентина',
+            'KR': 'Южная Корея',
+            'HK': 'Гонконг',
+            'UA': 'Украина',
+            'IT': 'Италия',
+            'RU': 'Россия',
+            'CO': 'Колумбия',
+            'DE': 'Германия',
+            'JP': 'Япония',
+            'FR': 'Франция',
+            'FI': 'Финляндия',
+            'IS': 'Исландия',
+            'ID': 'Индонезия',
+            'BR': 'Бразилия',
+            'BE': 'Бельгия',
+            'DK': 'Дания',
+            'TR': 'Турция',
+            'TH': 'Таиланд',
+            'PL': 'Польша',
+            'GT': 'Гватемала',
+            'CN': 'Китай',
+            'CZ': 'Чехия',
+            'PH': 'Филиппины',
+            'ZA': 'Южная Африка',
+            'CA': 'Канада',
+            'NL': 'Нидерланды',
+            'TW': 'Тайвань',
+            'PR': 'Пуэрто-Рико',
+            'IN': 'Индия',
+            'IE': 'Ирландия',
+            'SG': 'Сингапур',
+            'PE': 'Перу',
+            'CH': 'Швейцария',
+            'SE': 'Швеция',
+            'IL': 'Израиль',
+            'DO': 'Доминикана',
+            'VN': 'Вьетнам',
+            'GR': 'Греция',
+            'SU': 'СССР',
+            'HU': 'Венгрия',
+            'BO': 'Боливия',
+            'SK': 'Словакия',
+            'UY': 'Уругвай',
+            'BY': 'Беларусь',
+            'AT': 'Австрия',
+            'PY': 'Парагвай',
+            'MY': 'Малайзия',
+            'MU': 'Маврикий',
+            'LV': 'Латвия',
+            'XC': 'Европа (прочее)',
+            'KH': 'Камбоджа',
+            'IR': 'Иран'
         };
 
         // Отображаем жанры в виде списка или тегов
@@ -226,15 +239,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Если genres - массив, обрабатываем его
         if (Array.isArray(movieData.genres)) {
-          const genreElements = movieData.genres.map(genre => {
-            const displayName = genreMapping[genre] || genre;
-            return `<span class="genre-tag">${displayName}</span>`;
-          });
-          genresContainer.innerHTML = genreElements.join('');
+            const genreElements = movieData.genres.map(genre => {
+                const displayName = genreMapping[genre] || genre;
+                return `<span class="genre-tag">${displayName}</span>`;
+            });
+            genresContainer.innerHTML = genreElements.join('');
         }
         // Если genres - строка (для обратной совместимости)
         else if (movieData.genre) {
-          genresContainer.innerHTML = `<span class="genre-tag">${genreMapping[movieData.genre] || movieData.genre}</span>`;
+            genresContainer.innerHTML = `<span class="genre-tag">${genreMapping[movieData.genre] || movieData.genre}</span>`;
         }
 
         document.getElementById('result-country').textContent = countryMapping[movieData.country] || movieData.country;
@@ -246,33 +259,156 @@ document.addEventListener('DOMContentLoaded', function() {
         const ratingPercentage = (parseFloat(predictionValue) / 10) * 100;
 
         setTimeout(() => {
-          ratingBar.style.width = `${ratingPercentage}%`;
+            ratingBar.style.width = `${ratingPercentage}%`;
 
-          if (parseFloat(predictionValue) >= 7.0) {
-            ratingBar.style.backgroundColor = '#4CAF50'; /* Зеленый для хороших оценок */
-          } else if (parseFloat(predictionValue) >= 5) {
-            ratingBar.style.backgroundColor = '#FFC107'; /* Желтый для средних */
-          } else {
-            ratingBar.style.backgroundColor = '#F44336'; /* Красный для низких */
-          }
+            if (parseFloat(predictionValue) >= 70) {
+                ratingBar.style.backgroundColor = '#4CAF50'; /* Зеленый для хороших оценок */
+            } else if (parseFloat(predictionValue) >= 60 <= 69.9) {
+                ratingBar.style.backgroundColor = '#FFC107'; /* Желтый для средних */
+            } else if (parseFloat(predictionValue) < 59) {
+                ratingBar.style.backgroundColor = '#F44336'; /* Красный для низких */
+            }
         }, 100);
-      }
-    });
+    }
 
+    // Chat widget functionality
+    let chatOpen = false;
+
+    function toggleChat() {
+        console.log('toggleChat called, chatOpen:', chatOpen);
+        const container = document.getElementById('chatContainer');
+        const toggle = document.querySelector('.chat-toggle');
+
+        chatOpen = !chatOpen;
+
+        if (chatOpen) {
+            container.classList.add('open');
+            toggle.classList.add('active');
+        } else {
+            container.classList.remove('open');
+            toggle.classList.remove('active');
+        }
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        console.log('sendMessage called');
+        const input = document.getElementById('messageInput');
+        if (!input) {
+            console.error('Element #messageInput not found');
+            return;
+        }
+        const message = input.value.trim();
+        if (!message) {
+            console.log('Message is empty');
+            return;
+        }
+
+        // Добавляем сообщение пользователя
+        addMessage(message, 'user');
+        input.value = '';
+
+        // Показываем индикатор набора
+        showTyping();
+
+        // Отправляем POST запрос на сервер
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideTyping();
+            if (data.error) {
+                console.error('Server error:', data.error);
+                addMessage('Произошла ошибка на сервере. Попробуйте снова.', 'bot');
+                return;
+            }
+            const botResponse = data.response;
+            addMessage(botResponse, 'bot');
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            hideTyping();
+            addMessage('Не удалось связаться с сервером. Проверьте подключение.', 'bot');
+        });
+    }
+
+    function addMessage(text, sender) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        messageDiv.textContent = text;
+
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        const messagesContainer = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+
+        messagesContainer.appendChild(typingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    // Закрытие чата при клике вне его
+    document.addEventListener('click', function(event) {
+        const chatWidget = document.querySelector('.chat-widget');
+        const chatContainer = document.getElementById('chatContainer');
+
+        if (chatOpen && !chatWidget.contains(event.target)) {
+            toggleChat();
+        }
+    });
+});
 
 $(document).ready(function() {
-  $('#country').select2({
-    templateResult: function (state) {
-      if (!state.id) return state.text;
-      const img = $(state.element).data('image');
-      if (!img) return state.text;
-      return $('<span><img src="' + img + '" class="img-flag" /> ' + state.text + '</span>');
-    },
-    templateSelection: function (state) {
-      if (!state.id) return state.text;
-      const img = $(state.element).data('image');
-      if (!img) return state.text;
-      return $('<span><img src="' + img + '" class="img-flag" /> ' + state.text + '</span>');
-    }
-  });
+    $('#country').select2({
+        templateResult: function (state) {
+            if (!state.id) return state.text;
+            const img = $(state.element).data('image');
+            if (!img) return state.text;
+            return $('<span><img src="' + img + '" class="img-flag" /> ' + state.text + '</span>');
+        },
+        templateSelection: function (state) {
+            if (!state.id) return state.text;
+            const img = $(state.element).data('image');
+            if (!img) return state.text;
+            return $('<span><img src="' + img + '" class="img-flag" /> ' + state.text + '</span>');
+        }
+    });
 });
+
+// Функция для получения выбранных жанров
+function getSelectedGenres() {
+    const selectedGenres = document.querySelectorAll('input[name="genres"]:checked');
+    const genres = [];
+    selectedGenres.forEach(checkbox => {
+        genres.push(checkbox.value);
+    });
+    return genres;
+}
