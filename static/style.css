@@ -350,7 +350,23 @@ input[type="checkbox"]:checked::before {
 }
 
 .chat-widget.fullscreen .chat-messages {
-    height: calc(100vh - 120px) !important;
+    height: calc(100vh - 160px) !important;
+}
+
+.chat-widget.fullscreen .chat-input {
+    position: absolute;
+    max-width: 2025px;
+    bottom: 0px; /* <-- регулируй высоту при необходимости */
+    left: 0;
+    right: 0;
+    padding: 0px;
+    background: var(--medium-bg);
+    z-index: 1001;
+}
+
+.send-button:active {
+    transform: scale(0.95);
+    background: #e6be00;
 }
 
 .fullscreen-toggle {
@@ -363,7 +379,8 @@ input[type="checkbox"]:checked::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.9s;
+    margin-left: auto; /* прижимаем вправо */
+    transition: background-color 0.3s ease;
 }
 
 .fullscreen-toggle:hover {
@@ -577,7 +594,7 @@ input[type="checkbox"]:checked::before {
 .send-button {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 100%;
     background: var(--primary-gold);
     border: none;
     cursor: pointer;

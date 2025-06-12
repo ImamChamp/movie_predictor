@@ -12,6 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fullscreenToggle')?.addEventListener('click', toggleFullscreen);
     document.getElementById('closeChat')?.addEventListener('click', closeChat);
 
+    messageInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // чтобы не вставлялся перенос строки
+            sendMessage();
+        }
+    });
+
     console.log('messageInput exists:', !!messageInput);
     console.log('chatMessages exists:', !!chatMessages);
 
@@ -40,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     budgetRange.addEventListener('input', function() {
         const budget = parseInt(this.value);
         budgetInput.value = budget;
-        budgetCategory.textContent = `Категория: ${getBudgetCategory(budget)} бюджет`;
+        budgetCategory.textContent = `Бюджет: ${getBudgetCategory(budget)}`;
     });
 
     // Обновление при изменении ввода
@@ -53,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         this.value = budget;
         budgetRange.value = budget;
-        budgetCategory.textContent = `Категория: ${getBudgetCategory(budget)} бюджет`;
+        budgetCategory.textContent = `Бюджет: ${getBudgetCategory(budget)}`;
     });
 
     // Обработка потери фокуса полем ввода для форматирования
@@ -255,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const predictionValue = typeof prediction === 'number' ? prediction.toFixed(1) : prediction;
         document.getElementById('prediction-value').textContent = predictionValue;
-
+        const ratingContainer = document.getElementById('rating-container')
         const ratingBar = document.getElementById('rating-bar');
         const ratingPercentage = (parseFloat(predictionValue) / 10) * 100;
 
@@ -264,10 +271,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (parseFloat(predictionValue) >= 70) {
                 ratingBar.style.backgroundColor = '#4CAF50'; /* Зеленый для хороших оценок */
+                ratingContainer.style.backgroundColor = '#4CAF50'; /* Зеленый для хороших оценок */
             } else if (parseFloat(predictionValue) >= 60 <= 69.9) {
                 ratingBar.style.backgroundColor = '#FFC107'; /* Желтый для средних */
-            } else if (parseFloat(predictionValue) < 59) {
+                ratingContainer.style.backgroundColor = '#FFC107'; /* Желтый для средних */
+            } else if (parseFloat(predictionValue) <= 59) {
                 ratingBar.style.backgroundColor = '#F44336'; /* Красный для низких */
+                ratingContainer.style.backgroundColor = '#F44336';
             }
         }, 100);
     }
