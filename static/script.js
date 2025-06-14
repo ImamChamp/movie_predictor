@@ -12,12 +12,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fullscreenToggle')?.addEventListener('click', toggleFullscreen);
     document.getElementById('closeChat')?.addEventListener('click', closeChat);
 
-    messageInput.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // чтобы не вставлялся перенос строки
-            sendMessage();
-        }
-    });
+    // Chart form elements
+    const chartForm = document.getElementById('chart-form');
+    const chartTypeSelect = document.getElementById('chart_type');
+    const yAxisGroup = document.getElementById('y_axis_group');
+
+    if (messageInput) {
+        messageInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    }
 
     console.log('messageInput exists:', !!messageInput);
     console.log('chatMessages exists:', !!chatMessages);
@@ -28,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!chatMessages) {
         console.error('Element #chatMessages not found in DOM');
     }
-    document.querySelector('.chat-toggle').addEventListener('click', toggleChat);
-    document.querySelector('.send-button').addEventListener('click', sendMessage);
+    document.querySelector('.chat-toggle')?.addEventListener('click', toggleChat);
+    document.querySelector('.send-button')?.addEventListener('click', sendMessage);
 
     // Функция для определения категории бюджета
     function getBudgetCategory(budget) {
@@ -44,99 +51,113 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Обновление при изменении ползунка
-    budgetRange.addEventListener('input', function() {
-        const budget = parseInt(this.value);
-        budgetInput.value = budget;
-        budgetCategory.textContent = `Бюджет: ${getBudgetCategory(budget)}`;
-    });
+    if (budgetRange) {
+        budgetRange.addEventListener('input', function() {
+            const budget = parseInt(this.value);
+            budgetInput.value = budget;
+            budgetCategory.textContent = `Бюджет: ${getBudgetCategory(budget)}`;
+        });
+    }
 
     // Обновление при изменении ввода
-    budgetInput.addEventListener('input', function() {
-        let budget = parseInt(this.value) || 1000000;
+    if (budgetInput) {
+        budgetInput.addEventListener('input', function() {
+            let budget = parseInt(this.value) || 1000000;
 
-        // Ограничение значений
-        if (budget < 1000000) budget = 1000000;
-        if (budget > 300000000) budget = 300000000;
+            if (budget < 1000000) budget = 1000000;
+            if (budget > 300000000) budget = 300000000;
 
-        this.value = budget;
-        budgetRange.value = budget;
-        budgetCategory.textContent = `Бюджет: ${getBudgetCategory(budget)}`;
-    });
+            this.value = budget;
+            budgetRange.value = budget;
+            budgetCategory.textContent = `Бюджет: ${getBudgetCategory(budget)}`;
+        });
 
-    // Обработка потери фокуса полем ввода для форматирования
-    budgetInput.addEventListener('blur', function() {
-        this.value = parseInt(this.value) || 1000000;
-    });
+        budgetInput.addEventListener('blur', function() {
+            this.value = parseInt(this.value) || 1000000;
+        });
+    }
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Проверяем, выбран ли хотя бы один жанр
-        const selectedGenres = document.querySelectorAll('input[name="genres"]:checked');
-        if (selectedGenres.length === 0) {
-            genresError.style.display = 'block';
-            return;
-        } else {
-            genresError.style.display = 'none';
+    // Toggle y-axis for chart types
+    if (chartTypeSelect) {
+        function toggleYAxis() {
+            if (chartTypeSelect.value === 'histogram') {
+                yAxisGroup.style.display = 'none';
+                yAxisGroup.querySelector('select').removeAttribute('required');
+            } else {
+                yAxisGroup.style.display = 'block';
+                yAxisGroup.querySelector('select').setAttribute('required', '');
+            }
         }
 
-        resultEmpty.style.display = 'none';
-        resultContent.style.display = 'none';
-        loading.style.display = 'flex';
+        chartTypeSelect.addEventListener('change', toggleYAxis);
+        toggleYAxis(); // Initial check
+    }
 
-        // Собираем данные из формы
-        const formData = new FormData(form);
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
 
-        // Собираем выбранные жанры в массив
-        const genres = [];
-        selectedGenres.forEach(checkbox => {
-            genres.push(checkbox.value);
-        });
-        const budget = parseInt(budgetInput.value);
-
-        const movieData = {
-            title: formData.get('title'),
-            genres: genres, // Теперь передаем массив жанров
-            original_language: formData.get('original_language'),
-            budget: budget,
-            country: formData.get('country')
-        };
-
-        // Отправка данных на сервер Flask
-        fetch('/predict', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(movieData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка сервера');
+            const selectedGenres = document.querySelectorAll('input[name="genres"]:checked');
+            if (selectedGenres.length === 0) {
+                genresError.style.display = 'block';
+                return;
+            } else {
+                genresError.style.display = 'none';
             }
-            return response.json();
-        })
-        .then(data => {
-            loading.style.display = 'none';
-            displayResults(data.movie, data.prediction, data.statistic);
-            resultContent.style.display = 'block';
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            loading.style.display = 'none';
 
-            // В случае ошибки показываем сообщение
-            resultEmpty.style.display = 'block';
-            resultEmpty.innerHTML = '<p>Произошла ошибка при получении предсказания. Пожалуйста, попробуйте еще раз.</p>';
+            resultEmpty.style.display = 'none';
+            resultContent.style.display = 'none';
+            loading.style.display = 'flex';
+
+            const formData = new FormData(form);
+
+            const genres = [];
+            selectedGenres.forEach(checkbox => {
+                genres.push(checkbox.value);
+            });
+            const budget = parseInt(budgetInput.value);
+
+            const movieData = {
+                title: formData.get('title'),
+                genres: genres,
+                original_language: formData.get('original_language'),
+                budget: budget,
+                country: formData.get('country')
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(movieData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера');
+                }
+                return response.json();
+            })
+            .then(data => {
+                loading.style.display = 'none';
+                displayResults(data.movie, data.prediction, data.statistic);
+                resultContent.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                loading.style.display = 'none';
+                resultEmpty.style.display = 'block';
+                resultEmpty.innerHTML = '<p>Произошла ошибка при получении предсказания. Пожалуйста, попробуйте еще раз.</p>';
+            });
+            localStorage.removeItem("movieFormData");
         });
-        localStorage.removeItem("movieFormData");
-    });
+    }
 
     function saveFormDataToLocalStorage() {
-        const selectedGenres = getSelectedGenres(); // предполагаем, что эта функция уже есть
-        const budget = document.getElementById("budget-input").value; // Updated to match input ID
-        const country = document.getElementById("country").value;
-        const language = document.getElementById("original_language").value; // Updated to match select ID
+        const selectedGenres = getSelectedGenres();
+        const budget = document.getElementById("budget-input")?.value;
+        const country = document.getElementById("country")?.value;
+        const language = document.getElementById("original_language")?.value;
 
         const formData = {
             genres: selectedGenres,
@@ -154,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayResults(movieData, prediction, statistic) {
         document.getElementById('result-title').textContent = movieData.title;
-
         document.getElementById('percentage').textContent = statistic;
 
         const genreMapping = {
@@ -241,11 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'IR': 'Иран'
         };
 
-        // Отображаем жанры в виде списка или тегов
         const genresContainer = document.getElementById('result-genres');
-        genresContainer.innerHTML = ''; // Очищаем предыдущие значения
+        genresContainer.innerHTML = '';
 
-        // Если genres - массив, обрабатываем его
         if (Array.isArray(movieData.genres)) {
             const genreElements = movieData.genres.map(genre => {
                 const displayName = genreMapping[genre] || genre;
@@ -253,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             genresContainer.innerHTML = genreElements.join('');
         }
-        // Если genres - строка (для обратной совместимости)
         else if (movieData.genre) {
             genresContainer.innerHTML = `<span class="genre-tag">${genreMapping[movieData.genre] || movieData.genre}</span>`;
         }
@@ -270,19 +287,18 @@ document.addEventListener('DOMContentLoaded', function() {
             ratingBar.style.width = `${ratingPercentage}%`;
 
             if (parseFloat(predictionValue) >= 70) {
-                ratingBar.style.backgroundColor = '#4CAF50'; /* Зеленый для хороших оценок */
-                ratingContainer.style.backgroundColor = '#4CAF50'; /* Зеленый для хороших оценок */
+                ratingBar.style.backgroundColor = '#4CAF50';
+                ratingContainer.style.backgroundColor = '#4CAF50';
             } else if (parseFloat(predictionValue) >= 60 <= 69.9) {
-                ratingBar.style.backgroundColor = '#FFC107'; /* Желтый для средних */
-                ratingContainer.style.backgroundColor = '#FFC107'; /* Желтый для средних */
+                ratingBar.style.backgroundColor = '#FFC107';
+                ratingContainer.style.backgroundColor = '#FFC107';
             } else if (parseFloat(predictionValue) <= 59) {
-                ratingBar.style.backgroundColor = '#F44336'; /* Красный для низких */
+                ratingBar.style.backgroundColor = '#F44336';
                 ratingContainer.style.backgroundColor = '#F44336';
             }
         }, 100);
     }
 
-    // Chat widget functionality
     let chatOpen = false;
 
     function toggleChat() {
@@ -309,12 +325,6 @@ document.addEventListener('DOMContentLoaded', function() {
         toggle.classList.remove('active');
     }
 
-    function handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            sendMessage();
-        }
-    }
-
     function sendMessage() {
         console.log('sendMessage called');
         const input = document.getElementById('messageInput');
@@ -328,14 +338,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Добавляем сообщение пользователя
         addMessage(message, 'user');
         input.value = '';
 
-        // Показываем индикатор набора
         showTyping();
 
-        // Отправляем POST запрос на сервер
         fetch('/chat', {
             method: 'POST',
             headers: {
@@ -394,7 +401,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Закрытие чата при клике вне его
     document.addEventListener('click', function(event) {
         const chatWidget = document.querySelector('.chat-widget');
         const chatContainer = document.getElementById('chatContainer');
@@ -416,27 +422,34 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isFullscreen) {
             chatWidget.classList.add('fullscreen');
             fullscreenIcon.setAttribute('d', 'M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 0 2-2h3M3 16h3a2 2 0 0 0 2 2v3');
-
-            // Добавить обработчик для выхода по ESC
             document.addEventListener('keydown', handleEscapeKey);
-
-            // Добавить обработчик для выхода по клику вне окна
             setTimeout(() => {
                 document.addEventListener('click', handleOutsideClick);
             }, 100);
         } else {
             chatWidget.classList.remove('fullscreen');
             fullscreenIcon.setAttribute('d', 'M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3');
-
-            // Удалить обработчики
             document.removeEventListener('keydown', handleEscapeKey);
             document.removeEventListener('click', handleOutsideClick);
+        }
+    }
+
+    function handleEscapeKey(event) {
+        if (event.key === 'Escape' && isFullscreen) {
+            toggleFullscreen();
+        }
+    }
+
+    function handleOutsideClick(event) {
+        const chatWidget = document.querySelector('.chat-widget');
+        if (isFullscreen && !chatWidget.contains(event.target)) {
+            toggleFullscreen();
         }
     }
 });
 
 $(document).ready(function() {
-    $('#country').select2({
+    $('#country')?.select2({
         templateResult: function (state) {
             if (!state.id) return state.text;
             const img = $(state.element).data('image');

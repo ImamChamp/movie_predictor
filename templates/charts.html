@@ -1,76 +1,105 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Графики | КиноПредсказатель</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КиноГрафики</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        <h1><span style="color: var(--accent-red);">Кино</span>Графики</h1>
-      </div>
-      <p class="tagline">Визуализация данных о фильмах</p>
-      <a href="{{ url_for('index') }}" id="predict-form" style="color: var(--primary-gold); text-decoration: underline;">← Назад к предсказателю</a>
-    </header>
-
-    <main>
-      <div class="prediction-form">
-        <h2>График популярных бюджетов</h2>
-        <canvas id="budgetChart"></canvas>
-      </div>
-      <div class="prediction-result">
-        <h2>График средней оценки по жанрам</h2>
-        <canvas id="genreChart"></canvas>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    // График бюджетов
-    const ctx1 = document.getElementById('budgetChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: ['<10M', '10-50M', '50-100M', '100-200M', '200M+'],
-            datasets: [{
-                label: 'Количество фильмов',
-                data: [5, 12, 9, 6, 2],
-                backgroundColor: '#FFD700',
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: 'Распределение по бюджетам' }
-            }
-        }
-    });
-
-    // График по жанрам
-    const ctx2 = document.getElementById('genreChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'pie',
-        data: {
-            labels: ['Комедия', 'Драма', 'Боевик', 'Ужасы', 'Фантастика'],
-            datasets: [{
-                label: 'Средняя оценка',
-                data: [6.8, 7.2, 6.5, 5.9, 7.0],
-                backgroundColor: [
-                    '#F44336', '#2196F3', '#4CAF50', '#FFC107', '#9C27B0'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: { display: true, text: 'Средняя оценка по жанрам' }
-            }
-        }
-    });
-  </script>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>КиноГрафики</h1>
+            </div>
+            <p class="tagline">Визуализация данных о фильмах</p>
+            <a href="/" style="color: #FFD700; text-decoration: none; font-size: 1.2rem;">← Назад к предсказателю</a>
+        </header>
+        <main>
+            <section class="prediction-form">
+                <h2>Создать свой график</h2>
+                <form action="/generate_plot" method="POST" id="chart-form">
+                    <div class="form-group">
+                        <label for="chart_type">Тип графика:</label>
+                        <select name="chart_type" id="chart_type" required>
+                            <option value="bar" {% if selected_chart_type == 'bar' %}selected{% endif %}>Столбчатый</option>
+                            <option value="scatter" {% if selected_chart_type == 'scatter' %}selected{% endif %}>Точечный</option>
+                            <option value="histogram" {% if selected_chart_type == 'histogram' %}selected{% endif %}>Гистограмма</option>
+                            <option value="box" {% if selected_chart_type == 'box' %}selected{% endif %}>Ящик с усами</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="x_axis">Ось X:</label>
+                        <select name="x_axis" id="x_axis" required>
+                            <option value="year" {% if selected_x_axis == 'year' %}selected{% endif %}>Год</option>
+                            <option value="budget_x" {% if selected_x_axis == 'budget_x' %}selected{% endif %}>Бюджет</option>
+                            <option value="country" {% if selected_x_axis == 'country' %}selected{% endif %}>Страна</option>
+                            {% for genre in genres %}
+                            <option value="{{ genre }}" {% if selected_x_axis == genre %}selected{% endif %}>{{ genre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" id="y_axis_group">
+                        <label for="y_axis">Ось Y:</label>
+                        <select name="y_axis" id="y_axis">
+                            <option value="score" {% if selected_y_axis == 'score' %}selected{% endif %}>Рейтинг</option>
+                            <option value="budget_x" {% if selected_y_axis == 'budget_x' %}selected{% endif %}>Бюджет</option>
+                            <option value="revenue" {% if selected_y_axis == 'revenue' %}selected{% endif %}>Сборы</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="genre_filter">Фильтр по жанру:</label>
+                        <select name="genre_filter" id="genre_filter">
+                            <option value="Все жанры" {% if selected_genre == 'Все жанры' %}selected{% endif %}>Все жанры</option>
+                            {% for genre in genres %}
+                            <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="country_filter">Фильтр по стране:</label>
+                        <select name="country_filter" id="country_filter">
+                            <option value="Все страны" {% if selected_country == 'Все страны' %}selected{% endif %}>Все страны</option>
+                            {% for country in countries %}
+                            <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Диапазон годов:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select name="year_min" id="year_min">
+                                {% for year in years %}
+                                <option value="{{ year }}" {% if selected_year_min == year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="year_max" id="year_max">
+                                {% for year in years %}
+                                <option value="{{ year }}" {% if selected_year_max == year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="predict-button">Создать график</button>
+                </form>
+            </section>
+            {% if plot_url %}
+            <section class="prediction-result">
+                <h2>Сгенерированный график</h2>
+                <img src="data:image/png;base64,{{ plot_url }}" alt="График" style="max-width: 100%; height: auto;">
+            </section>
+            {% else %}
+            <section class="prediction-result">
+                <div class="result-empty">
+                    <p>Выберите параметры и создайте свой график!</p>
+                </div>
+            </section>
+            {% endif %}
+        </main>
+        <footer>
+            <p>© 2025 КиноГрафики | Дипломный проект с любовью к кино</p>
+        </footer>
+    </div>
 </body>
 </html>
