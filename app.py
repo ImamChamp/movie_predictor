@@ -295,6 +295,7 @@ def generate_plot():
         country_filter = request.form.get('country_filter')
         year_min = int(request.form.get('year_min') or df['year'].min())
         year_max = int(request.form.get('year_max') or df['year'].max())
+        chart_color = request.form.get('chart_color', '#FFD700')  # Default to gold if not provided
 
         # Filter dataset
         filtered_df = df.copy()
@@ -312,7 +313,7 @@ def generate_plot():
             return jsonify({"error": "Нет данных для выбранных фильтров"}), 400
 
         # Create plot
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(22, 12))
         sns.set_style("whitegrid")
         plt.rcParams['font.family'] = 'Montserrat'
 
@@ -327,18 +328,29 @@ def generate_plot():
         if chart_type == 'bar':
             if x_axis in genres or x_axis == 'country':
                 agg_data = plot_df.groupby(x_axis)['score'].mean().reset_index()
-                sns.barplot(data=agg_data, x=x_axis, y='score')
+                sns.barplot(data=agg_data, x=x_axis, y='score', color=chart_color)
             else:
-                sns.barplot(data=plot_df, x=x_axis, y=y_axis)
+                if x_axis == 'year':
+                    # Group by year to ensure correct order and values
+                    agg_data = plot_df.groupby('year')[y_axis].mean().reset_index()
+                    sns.barplot(data=agg_data, x='year', y=y_axis, color=chart_color)
+                    plt.xticks(ticks=range(len(agg_data['year'])), labels=agg_data['year'].astype(int), rotation=45)
+                else:
+                    sns.barplot(data=plot_df, x=x_axis, y=y_axis, color=chart_color)
         elif chart_type == 'scatter':
-            sns.scatterplot(data=plot_df, x=x_axis, y=y_axis)
+            sns.scatterplot(data=plot_df, x=x_axis, y=y_axis, color=chart_color)
         elif chart_type == 'histogram':
-            sns.histplot(data=plot_df, x=x_axis, bins=20)
+            sns.histplot(data=plot_df, x=x_axis, bins=20, color=chart_color)
         elif chart_type == 'box':
-            sns.boxplot(data=plot_df, x=x_axis, y=y_axis)
+            if x_axis == 'year':
+                # Ensure years are treated as categories but preserve their values
+                sns.boxplot(data=plot_df, x='year', y=y_axis, color=chart_color)
+                plt.xticks(ticks=range(len(plot_df['year'].unique())), labels=sorted(plot_df['year'].unique().astype(int)), rotation=45)
+            else:
+                sns.boxplot(data=plot_df, x=x_axis, y=y_axis, color=chart_color)
 
-        # Apply integer formatter to year axis
-        if x_axis == 'year':
+        # Apply integer formatter to year axis (for non-categorical cases)
+        if x_axis == 'year' and chart_type not in ['bar', 'box']:
             plt.gca().xaxis.set_major_formatter(int_formatter)
         if y_axis == 'year':
             plt.gca().yaxis.set_major_formatter(int_formatter)
@@ -376,6 +388,7 @@ def generate_plot():
         print(f"Ошибка: {str(e)}")
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

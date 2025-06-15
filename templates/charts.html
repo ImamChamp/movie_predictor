@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КиноГрафики</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/script.js" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
@@ -14,24 +13,25 @@
                 <h1>КиноГрафики</h1>
             </div>
             <p class="tagline">Визуализация данных о фильмах</p>
-            <a href="/" style="color: #FFD700; text-decoration: none; font-size: 1.2rem;">← Назад к предсказателю</a>
+            <a href="{{ url_for('index') }}" class="back-link">← Назад к предсказателю</a>
         </header>
         <main>
-            <section class="prediction-form">
+            <section class="chart-form">
                 <h2>Создать свой график</h2>
-                <form action="/generate_plot" method="POST" id="chart-form">
+                <form id="chart-form" action="{{ url_for('generate_plot') }}" method="POST">
                     <div class="form-group">
                         <label for="chart_type">Тип графика:</label>
-                        <select name="chart_type" id="chart_type" required>
+                        <select id="chart_type" name="chart_type" required>
                             <option value="bar" {% if selected_chart_type == 'bar' %}selected{% endif %}>Столбчатый</option>
                             <option value="scatter" {% if selected_chart_type == 'scatter' %}selected{% endif %}>Точечный</option>
                             <option value="histogram" {% if selected_chart_type == 'histogram' %}selected{% endif %}>Гистограмма</option>
                             <option value="box" {% if selected_chart_type == 'box' %}selected{% endif %}>Ящик с усами</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="x_axis">Ось X:</label>
-                        <select name="x_axis" id="x_axis" required>
+                        <select id="x_axis" name="x_axis" required>
                             <option value="year" {% if selected_x_axis == 'year' %}selected{% endif %}>Год</option>
                             <option value="budget_x" {% if selected_x_axis == 'budget_x' %}selected{% endif %}>Бюджет</option>
                             <option value="country" {% if selected_x_axis == 'country' %}selected{% endif %}>Страна</option>
@@ -40,57 +40,71 @@
                             {% endfor %}
                         </select>
                     </div>
+
                     <div class="form-group" id="y_axis_group">
                         <label for="y_axis">Ось Y:</label>
-                        <select name="y_axis" id="y_axis">
+                        <select id="y_axis" name="y_axis">
                             <option value="score" {% if selected_y_axis == 'score' %}selected{% endif %}>Рейтинг</option>
                             <option value="budget_x" {% if selected_y_axis == 'budget_x' %}selected{% endif %}>Бюджет</option>
-                            <option value="revenue" {% if selected_y_axis == 'revenue' %}selected{% endif %}>Сборы</option>
+                            <option value="revenue" {% if selected_y_axis == 'revenue' %}selected{% endif %}>Кассовые сборы</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="genre_filter">Фильтр по жанру:</label>
-                        <select name="genre_filter" id="genre_filter">
+                        <select id="genre_filter" name="genre_filter">
                             <option value="Все жанры" {% if selected_genre == 'Все жанры' %}selected{% endif %}>Все жанры</option>
                             {% for genre in genres %}
                             <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
                             {% endfor %}
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="country_filter">Фильтр по стране:</label>
-                        <select name="country_filter" id="country_filter">
+                        <select id="country_filter" name="country_filter">
                             <option value="Все страны" {% if selected_country == 'Все страны' %}selected{% endif %}>Все страны</option>
                             {% for country in countries %}
                             <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}</option>
                             {% endfor %}
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="chart_color">Цвет графика:</label>
+                        <input type="color" id="chart_color" name="chart_color" value="#FFD700">
+                    </div>
+
                     <div class="form-group">
                         <label>Диапазон годов:</label>
-                        <div style="display: flex; gap: 10px;">
-                            <select name="year_min" id="year_min">
+                        <div class="year-range">
+                            <select id="year_min" name="year_min">
                                 {% for year in years %}
                                 <option value="{{ year }}" {% if selected_year_min == year %}selected{% endif %}>{{ year }}</option>
                                 {% endfor %}
                             </select>
-                            <select name="year_max" id="year_max">
+                            <select id="year_max" name="year_max">
                                 {% for year in years %}
                                 <option value="{{ year }}" {% if selected_year_max == year %}selected{% endif %}>{{ year }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
+
                     <button type="submit" class="predict-button">Создать график</button>
                 </form>
             </section>
+
             {% if plot_url %}
-            <section class="prediction-result">
+            <section class="chart-result">
                 <h2>Сгенерированный график</h2>
-                <img src="data:image/png;base64,{{ plot_url }}" alt="График" style="max-width: 100%; height: auto;">
+                <div class="chart-container">
+                    <img id="chart-image" src="data:image/png;base64,{{ plot_url }}" alt="График">
+                    <button id="enlarge-chart" class="enlarge-button">Увеличить</button>
+                </div>
             </section>
             {% else %}
-            <section class="prediction-result">
+            <section class="chart-result">
                 <div class="result-empty">
                     <p>Выберите параметры и создайте свой график!</p>
                 </div>
@@ -101,5 +115,6 @@
             <p>© 2025 КиноГрафики | Дипломный проект с любовью к кино</p>
         </footer>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

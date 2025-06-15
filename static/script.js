@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chartForm = document.getElementById('chart-form');
     const chartTypeSelect = document.getElementById('chart_type');
     const yAxisGroup = document.getElementById('y_axis_group');
+    const enlargeChartButton = document.getElementById('enlarge-chart');
 
     if (messageInput) {
         messageInput.addEventListener('keydown', function(event) {
@@ -38,19 +39,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.chat-toggle')?.addEventListener('click', toggleChat);
     document.querySelector('.send-button')?.addEventListener('click', sendMessage);
 
-    // Функция для определения категории бюджета
+    // Function to determine budget category
     function getBudgetCategory(budget) {
         if (budget < 10000000) return "Малобюджетный";
         if (budget < 70000000) return "Средний";
         return "Блокбастер";
     }
 
-    // Функция для форматирования бюджета
+    // Function to format budget
     function formatBudget(budget) {
         return parseInt(budget).toLocaleString();
     }
 
-    // Обновление при изменении ползунка
+    // Update on slider change
     if (budgetRange) {
         budgetRange.addEventListener('input', function() {
             const budget = parseInt(this.value);
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновление при изменении ввода
+    // Update on input change
     if (budgetInput) {
         budgetInput.addEventListener('input', function() {
             let budget = parseInt(this.value) || 1000000;
@@ -91,6 +92,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chartTypeSelect.addEventListener('change', toggleYAxis);
         toggleYAxis(); // Initial check
+    }
+
+    // Enlarge chart functionality
+    if (enlargeChartButton) {
+        enlargeChartButton.addEventListener('click', function() {
+            const chartImage = document.getElementById('chart-image');
+            const chartContainer = document.querySelector('.chart-container');
+
+            if (chartContainer.classList.contains('enlarged')) {
+                chartContainer.classList.remove('enlarged');
+                enlargeChartButton.textContent = 'Увеличить';
+            } else {
+                chartContainer.classList.add('enlarged');
+                enlargeChartButton.textContent = 'Уменьшить';
+            }
+        });
     }
 
     if (form) {
@@ -465,7 +482,7 @@ $(document).ready(function() {
     });
 });
 
-// Функция для получения выбранных жанров
+// Function to get selected genres
 function getSelectedGenres() {
     const selectedGenres = document.querySelectorAll('input[name="genres"]:checked');
     const genres = [];

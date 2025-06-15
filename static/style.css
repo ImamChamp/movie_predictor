@@ -1,6 +1,6 @@
 :root {
     --primary-gold: #FFD700; /* Золотой цвет кинопленки */
-    --accent-red: #E53935; /* Красный цвет бархатных кресел (updated to match existing) */
+    --accent-red: #E53935; /* Красный цвет бархатных кресел */
     --primary-dark: #181818; /* Темный фон кинозала */
     --secondary-dark: #282828;
     --light-gray: #e0e0e0;
@@ -80,7 +80,9 @@ main {
 }
 
 .prediction-form,
-.prediction-result {
+.prediction-result,
+.chart-form,
+.chart-result {
     background-color: var(--secondary-dark);
     border-radius: 12px; /* Скругление побольше */
     padding: 30px; /* Увеличил внутренние отступы */
@@ -177,7 +179,7 @@ textarea:focus {
     width: 140px;
     height: 140px;
     background-color: var(--primary-gold);
-    изданий 50%;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -239,6 +241,57 @@ footer {
     color: var(--text-gray);
     border-top: 2px solid var(--primary-gold);
     font-size: 0.9rem;
+}
+
+/* Chart container styles */
+.chart-container {
+    position: relative;
+    text-align: center;
+}
+
+.chart-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.chart-container.enlarged {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.chart-container.enlarged img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.enlarge-button {
+    background-color: var(--primary-gold);
+    color: var(--primary-dark);
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.enlarge-button:hover {
+    background-color: #f0c808;
 }
 
 /* Улучшенные стили для чекбоксов жанров */
@@ -687,7 +740,9 @@ input[type="checkbox"]:checked::before {
     }
 
     .prediction-form,
-    .prediction-result {
+    .prediction-result,
+    .chart-form,
+    .chart-result {
         margin-bottom: 30px;
     }
 
